@@ -1,4 +1,5 @@
 # GibratSim
+[![DOI](https://zenodo.org/badge/5733/RCura/GibratSim.svg)](https://zenodo.org/badge/latestdoi/5733/RCura/GibratSim)
 Population growth analysis and simulation
 
 This web application is a customised version of the [Gibrat Simulator](https://github.com/RCura/gibrat)
