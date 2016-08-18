@@ -7,4 +7,4 @@ It enhances the base application by including urban population databases for the
 #### Contact
 For any question, feel free to contact [me](http://www.parisgeo.cnrs.fr/spip.php?article6416&lang=en)
 
-This website is released under the <a href="LICENSE.txt">**GNU AFFERO GENERAL PUBLIC LICENSE v3**</a>
+This website is released under the <a href="LICENSE">**GNU AFFERO GENERAL PUBLIC LICENSE v3**</a>
