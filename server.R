@@ -773,10 +773,11 @@ shinyServer(function(input, output, session) {
         df <- dataValues$rawDF
         valBreaks <- c(0, 10E3, 50E3, 100E3, 1E6, 10E6, 10E9)
         df$Pop <- df[, input$dateClasses]
+        df <- df %>% filter(Pop >= 10E3)
         df$N <- 1
         df$SizeClasses <-
             cut(
-                df[, input$dateClasses],
+                df$Pop,
                 breaks = valBreaks,
                 include.lowest = TRUE,
                 right = FALSE,
