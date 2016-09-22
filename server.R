@@ -1300,7 +1300,7 @@ shinyServer(function(input, output, session) {
             }
             
             resultDF
-        })
+        }, rownames = TRUE, striped = TRUE)
         
         sysZipfEvolutionPlot <- reactive({
             rankedData <- BRICS %>%
