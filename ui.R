@@ -30,8 +30,14 @@ shinyUI(
                                              h3("Parameters of a fitted power-law distribution"),
                                              tableOutput('estimZipf')),
                                     tabPanel("Zipf Evolution",
-                                             plotOutput("zipfEvolution"),
-                                             DT::dataTableOutput("zipfEvolutionSummary")),
+                                             fluidRow(plotOutput("zipfEvolution")),
+                                             fluidRow(
+                                                 column(1, checkboxInput("useGabaixRank",
+                                                                         label = "Use Gabaix log(Rank - 1/2)",
+                                                                         value = FALSE)),
+                                                 column(11, DT::dataTableOutput("zipfEvolutionSummary"))
+                                             )
+                                             ),
                                     tabPanel("LogNormality", 
                                              selectInput("dateLogNormal", "Date", choices="", multiple=FALSE,  selectize = TRUE),
                                              fluidRow(
@@ -112,7 +118,17 @@ shinyUI(
                                      fluidRow(plotOutput('qqplotsComparison')),
                                      fluidRow(column(width=12,tableOutput('normalityComparison')))
                                      ),
-                            tabPanel("Zipf curves",
+                            tabPanel("Zipf Indicators",
+                                     fluidRow(
+                                         column(6, plotOutput("sysZipfEvolutionGeogA", height = 350, width = 450)),
+                                         column(6, plotOutput("sysZipfEvolutionGeogAGabaix", height = 350, width = 450))
+                                         ),
+                                     fluidRow(
+                                         column(6, tableOutput("zipfTable")),
+                                         column(6, tableOutput("zipfTableGabaix"))
+                                     )
+                                     ),
+                            tabPanel("Zipf Final",
                                      fluidRow(downloadButton('zipfEvolDl', 'Download evolution plots'),
                                               downloadButton('zipfLastDl', 'Download final date plot')),
                                     plotOutput("sysZipfEvolution", height=800),

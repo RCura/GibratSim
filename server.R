@@ -1,19 +1,4 @@
 library(shiny)
-library(ggplot2)
-library(MASS)
-library(poweRlaw)
-library(DT)
-library(reshape2)
-library(dplyr)
-library(parallel)
-library(moments)
-library(xtable)
-
-library(sp)
-library(cartography)
-library(maps)
-library(markdown)
-
 #library(shinyURL)
 
 shinyServer(function(input, output, session) {
@@ -990,7 +975,11 @@ shinyServer(function(input, output, session) {
         output$zipfEvolution <- renderPlot({
             if (!is.null(dataValues$calcDF)) {
                 plotData <- dataValues$calcDF
-                rankSize <- plotRankSize(plotData)
+                if (input$useGabaixRank){
+                    rankSize <- plotGabaixRankSize(plotData)
+                } else {
+                    rankSize <- plotRankSize(plotData)
+                }
                 print(rankSize)
             }
         })
@@ -1022,6 +1011,10 @@ shinyServer(function(input, output, session) {
                             check.names = FALSE
                         )
                     colnames(zipf) <- c("ranks", "size")
+                    if (input$useGabaixRank){
+                        zipf$ranks <- zipf$ranks - 1/2
+                    } 
+                    
                     myLM <-
                         lm(log(size)  ~  log(ranks),
                            data = zipf,
@@ -1336,7 +1329,49 @@ shinyServer(function(input, output, session) {
         output$sysZipfEvolution <- renderPlot({
             sysZipfEvolution <- sysZipfEvolutionPlot()
             print(sysZipfEvolution)
-        }, height = 800)
+        },  height = 800)
+        
+        output$sysZipfEvolutionGeogA <- renderPlot({
+            sysZipfEvolution <- sysZipfEvolutionPlot()
+            print(sysZipfEvolution)
+        }, width = 450, height = 350)
+        
+        output$sysZipfEvolutionGeogAGabaix <- renderPlot({
+            sysZipfEvolution <- sysZipfEvolutionPlot()
+            print(sysZipfEvolution)
+        }, width = 450, height = 350)
+        
+        output$zipfIndicatorsGeogA <-  renderDataTable({
+            if (!is.null(dataValues$calcDF)) {
+                SumTable <- data.frame( Year = NA, Slope = NA, R2 = NA, LowerBound = NA, UpperBound = NA, NbCities = NA)
+                SumTable <- SumTable[-1, ]
+                for (currentTime in  colnames(dataValues$calcDF)) {
+                    dfZipf <-  dataValues$calcDF
+                    dfZipf <- as.data.frame(dfZipf[dfZipf[, currentTime] > 10E3,currentTime],
+                                            check.names =  FALSE)
+                    dfZipf <-  na.omit(dfZipf)
+                    dfZipf <- dfZipf[order(-dfZipf[, 1]),]
+                    ranks <- 1:length(dfZipf)
+                    zipf <- data.frame( ranks, dfZipf, stringsAsFactors =  FALSE, check.names = FALSE)
+                    colnames(zipf) <- c("ranks", "size")
+                    if (input$useGabaixRank){
+                        zipf$ranks <- zipf$ranks - 1/2
+                    } 
+                    
+                    myLM <-  lm(log(size) ~ log(ranks),  data = zipf, na.action = na.omit)
+                    myConfInt <- confint(myLM, level = 0.95)
+                    currentResults <-  c( currentTime, myLM$coefficients[[2]], summary(myLM)$adj.r.squared,
+                        myConfInt[2, 1], myConfInt[2, 2], nrow(zipf)
+                    )
+                    SumTable[nrow(SumTable) + 1, ] <- currentResults
+                }
+                datatable(SumTable,
+                          rownames = FALSE,
+                          options = list(dom = 't'))  %>% formatRound('R2', 3)  %>% formatRound(c("Slope", "LowerBound", "UpperBound"), 3)
+            }
+        })
+        
+        
         
         output$zipfEvolDl <- downloadHandler(
             filename = function() {
@@ -1583,6 +1618,61 @@ shinyServer(function(input, output, session) {
                 dev.off()
             }
         )
+        
+        output$zipfTable <- renderTable({
+            BRICS %>%
+                semi_join(group_by(.,system) %>% summarise(year = max(year)),
+                          by = c("system", "year")) %>%
+                filter(!is.na(pop), pop >= 10E3) %>%
+                group_by(system) %>%
+                mutate(rank = min_rank(-pop),
+                       nbCities = n()) %>%
+                group_by(system, year, nbCities) %>%
+                tidyr::nest() %>%
+                mutate(model = map(data, ~lm(log(pop) ~ log(rank), data = .)),
+                       slope = map(model, tidy) %>% map(., "estimate") %>% map_dbl(., ~ .[2]),
+                       R2 = map(model, glance) %>% map_dbl(., ~.[["r.squared"]]),
+                       ConfInt = map(model, confint, level = 0.95),
+                       lowerBound = map_dbl(ConfInt, ~ .["log(rank)",1]),
+                       upperBound = map_dbl(ConfInt, ~ .["log(rank)",2])
+                ) %>%
+                rename(Country = system,
+                       Year = year,
+                       Slope = slope,
+                       LowerBound = lowerBound,
+                       UpperBound = upperBound,
+                       NbCities = nbCities) %>%
+                select(Country, Year,Slope, R2, LowerBound, UpperBound,NbCities)
+            
+        }, digits = 3)
+        
+        output$zipfTableGabaix <- renderTable({
+            BRICS %>%
+                semi_join(group_by(.,system) %>% summarise(year = max(year)),
+                          by = c("system", "year")) %>%
+                filter(!is.na(pop), pop >= 10E3) %>%
+                group_by(system) %>%
+                mutate(rank = min_rank(-pop),
+                       rank = rank - 1/2,
+                       nbCities = n()) %>%
+                group_by(system, year, nbCities) %>%
+                tidyr::nest() %>%
+                mutate(model = map(data, ~lm(log(pop) ~ log(rank), data = .)),
+                       slope = map(model, tidy) %>% map(., "estimate") %>% map_dbl(., ~ .[2]),
+                       R2 = map(model, glance) %>% map_dbl(., ~.[["r.squared"]]),
+                       ConfInt = map(model, confint, level = 0.95),
+                       lowerBound = map_dbl(ConfInt, ~ .["log(rank)",1]),
+                       upperBound = map_dbl(ConfInt, ~ .["log(rank)",2])
+                ) %>%
+                rename(Country = system,
+                       Year = year,
+                       Slope = slope,
+                       LowerBound = lowerBound,
+                       UpperBound = upperBound,
+                       NbCities = nbCities) %>%
+                select(Country, Year, Slope, R2, LowerBound, UpperBound,NbCities)
+            
+        }, digits = 3)
         
         updateInputs <- function(session, columns, realColumns) {
             updateSelectInput(
