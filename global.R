@@ -1,7 +1,8 @@
 ############ LOAD PACKAGES ############
-library(tidyverse)
-
 library(MASS)
+
+
+
 library(poweRlaw)
 library(DT)
 library(reshape2)
@@ -13,6 +14,8 @@ library(sp)
 library(cartography)
 library(maps)
 library(markdown)
+
+library(tidyverse)
 
 
 ############ COMPUTE_GROWTHTABLE ############
