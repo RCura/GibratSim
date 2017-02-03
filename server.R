@@ -1630,8 +1630,8 @@ shinyServer(function(input, output, session) {
                 group_by(system, year, nbCities) %>%
                 tidyr::nest() %>%
                 mutate(model = map(data, ~lm(log(pop) ~ log(rank), data = .)),
-                       slope = map(model, tidy) %>% map(., "estimate") %>% map_dbl(., ~ .[2]),
-                       R2 = map(model, glance) %>% map_dbl(., ~.[["r.squared"]]),
+                       slope = map(model, broom::tidy) %>% map(., "estimate") %>% map_dbl(., ~ .[2]),
+                       R2 = map(model, broom::glance) %>% map_dbl(., ~.[["r.squared"]]),
                        ConfInt = map(model, confint, level = 0.95),
                        lowerBound = map_dbl(ConfInt, ~ .["log(rank)",1]),
                        upperBound = map_dbl(ConfInt, ~ .["log(rank)",2])
@@ -1642,7 +1642,13 @@ shinyServer(function(input, output, session) {
                        LowerBound = lowerBound,
                        UpperBound = upperBound,
                        NbCities = nbCities) %>%
-                select(Country, Year,Slope, R2, LowerBound, UpperBound,NbCities)
+                dplyr::select(Country,
+                       Year,
+                       Slope,
+                       R2,
+                       LowerBound,
+                       UpperBound,
+                       NbCities)
             
         }, digits = 3)
         
@@ -1658,8 +1664,8 @@ shinyServer(function(input, output, session) {
                 group_by(system, year, nbCities) %>%
                 tidyr::nest() %>%
                 mutate(model = map(data, ~lm(log(pop) ~ log(rank), data = .)),
-                       slope = map(model, tidy) %>% map(., "estimate") %>% map_dbl(., ~ .[2]),
-                       R2 = map(model, glance) %>% map_dbl(., ~.[["r.squared"]]),
+                       slope = map(model, broom::tidy) %>% map(., "estimate") %>% map_dbl(., ~ .[2]),
+                       R2 = map(model, broom::glance) %>% map_dbl(., ~.[["r.squared"]]),
                        ConfInt = map(model, confint, level = 0.95),
                        lowerBound = map_dbl(ConfInt, ~ .["log(rank)",1]),
                        upperBound = map_dbl(ConfInt, ~ .["log(rank)",2])
@@ -1670,7 +1676,7 @@ shinyServer(function(input, output, session) {
                        LowerBound = lowerBound,
                        UpperBound = upperBound,
                        NbCities = nbCities) %>%
-                select(Country, Year, Slope, R2, LowerBound, UpperBound,NbCities)
+                dplyr::select(Country, Year, Slope, R2, LowerBound, UpperBound,NbCities)
             
         }, digits = 3)
         
