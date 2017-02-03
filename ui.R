@@ -124,8 +124,10 @@ shinyUI(
                                          column(6, plotOutput("sysZipfEvolutionGeogAGabaix", height = 350, width = 450))
                                          ),
                                      fluidRow(
-                                         column(6, tableOutput("zipfTable")),
-                                         column(6, tableOutput("zipfTableGabaix"))
+                                         column(6, tags$h4("log(pop) ~ log(rank)"),
+                                                tableOutput("zipfTable")),
+                                         column(6, tags$h4("log(pop) ~ log(rank - 1/2) (Gabaix)"),
+                                                tableOutput("zipfTableGabaix"))
                                      )
                                      ),
                             tabPanel("Zipf Final",
