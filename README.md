@@ -10,7 +10,7 @@ Population growth analysis and simulation
 It enhances the base application by including urban population databases for the BRICS together with Europe and USA.
 This release can be used as a supplement to the Geographical Analysis paper it enriches.
 
-Cura R. , Cottineau C. , Swerts E. , Ignazzi C. , Bretagnolle A. , Vacchiani-Marcuzzo C. , Pumain D. (2017 - tbp), The old and the new. Qualifying city systems in the world with classical models and new data. Geographical Analysis
+> Cura R. , Cottineau C. , Swerts E. , Ignazzi C. , Bretagnolle A. , Vacchiani-Marcuzzo C. , Pumain D. (2017 - tbp), The old and the new. Qualifying city systems in the world with classical models and new data. Geographical Analysis
 
 
 
