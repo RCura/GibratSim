@@ -963,11 +963,14 @@ shinyServer(function(input, output, session) {
         
         
         output$transitionMatrix <- renderTable({
-            analysisValues$transitionMatrix
-        })
+            req(analysisValues$transitionMatrix)
+            
+            as.data.frame.matrix(analysisValues$transitionMatrix)
+        }, include.rownames=TRUE)
         
         output$transitionMatrixRel <- renderTable({
-            trMatrix <-  analysisValues$transitionMatrix
+            req(analysisValues$transitionMatrix)
+            trMatrix <-  as.data.frame.matrix(analysisValues$transitionMatrix)
             relMatrix <-  trMatrix  / rowSums(trMatrix) * 100
         })
         
@@ -1146,7 +1149,7 @@ shinyServer(function(input, output, session) {
             
             xyDF <-
                 data.frame(
-                    system = character(),
+                    sysYear = character(),
                     x = numeric(),
                     y = numeric(),
                     stringsAsFactors = FALSE
@@ -1177,7 +1180,8 @@ shinyServer(function(input, output, session) {
                 countriesR2 <- countriesR2 %>%
                     bind_rows(data.frame(
                         sysYear = currentSysYear,
-                        r2 = sprintf("R² = %s%%", currentR2)
+                        r2 = sprintf("R² = %s%%", currentR2),
+                        stringsAsFactors = FALSE
                     ))
             }
             
@@ -1506,7 +1510,7 @@ shinyServer(function(input, output, session) {
                     )
             }
             #browser()
-            return(div(HTML(unlist(blob)),class = "shiny-html-output"))
+            return(div(HTML(unlist(blob)),class = "shiny-html-output comparisontables"))
         })
         
         output$populationmaps <- renderPlot({
@@ -1545,11 +1549,11 @@ shinyServer(function(input, output, session) {
                 mapString <- "China"
             }
             
-            map(regions= mapString)
+            maps::map(regions= mapString)
             
             propSymbolsLayer(
                 spdf = currentPops, df = currentPops@data, var = "pop",
-                k = input$symbolSize, fixmax = maxPop,
+                inches = input$symbolSize, fixmax = maxPop,
                 symbols = "circle", border = "white",
                 lwd = 0.1, legend.pos = "topleft", legend.title.txt = "Total population"
             )
@@ -1560,7 +1564,7 @@ shinyServer(function(input, output, session) {
                 frame = TRUE, col = "#688994"
             )
             
-        }, height = 800)
+        }, height = 850)
         
         output$mapDl <- downloadHandler(
             filename = function() {

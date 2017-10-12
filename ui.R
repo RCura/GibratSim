@@ -3,7 +3,11 @@ library(shiny)
 
 shinyUI(
     navbarPage("Zipf",id = "zipf",
-               header = tags$head(includeScript("www/analytics.js")),
+               header = tags$head(includeScript("www/analytics.js"),
+                                  tags$style(" .comparisontables {
+    column-width: 500px
+}
+                                             ")),
                position = "static-top",
                inverse = TRUE,
                #shinyURL.ui(),
@@ -145,8 +149,8 @@ shinyUI(
                                                                label = "Select system",
                                                                choices = c("South Africa", "Brazil", "Former USSR", "India", "China", "China (Historical)", "USA", "Europe"))),
                                          column(5, sliderInput("symbolSize",
-                                                               label = "Points size (% of the map)",
-                                                               min=0.0, max = 0.1, step = 0.001, value = 0.01)),
+                                                               label = "Biggest point size (inches)",
+                                                               min=0.1, max = 2, step = 0.1, value = 0.4)),
                                          column(2, downloadButton("mapDl", label = "Download map"))
                                      ),
                                      plotOutput("populationmaps"))
